@@ -77,3 +77,48 @@ pub const NoteStore = struct {
         try Io.Dir.rename(self.dir, old_filename, self.dir, new_filename, self.io);
     }
 };
+
+test "NoteStore CRUD operations" {
+    const allocator = std.testing.allocator;
+    const io = std.testing.io;
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup(io);
+
+    var store = NoteStore{
+        .allocator = allocator,
+        .io = io,
+        .dir = tmp.dir,
+        .path = try allocator.dupe(u8, "tmp_path"),
+    };
+    defer allocator.free(store.path);
+    // We don't call store.deinit() because it would close tmp.dir, which tmp.cleanup() needs.
+
+    // 1. Create empty
+    try store.createEmpty("test.txt");
+
+    // 2. Save and Read
+    try store.save(.{ .title = undefined, .filename = "test.txt" }, "Hello Zig!");
+    const content = try store.readAlloc(allocator, .{ .title = undefined, .filename = "test.txt" });
+    defer allocator.free(content);
+    try std.testing.expectEqualStrings("Hello Zig!", content);
+
+    // 3. Rename
+    try store.rename("test.txt", "renamed.txt");
+    const renamed_content = try store.readAlloc(allocator, .{ .title = undefined, .filename = "renamed.txt" });
+    defer allocator.free(renamed_content);
+    try std.testing.expectEqualStrings("Hello Zig!", renamed_content);
+
+    // 4. Load
+    var notes = std.ArrayList(Note).init(allocator);
+    defer {
+        for (notes.items) |n| n.deinit(allocator);
+        notes.deinit();
+    }
+    try store.load(allocator, &notes);
+    try std.testing.expectEqual(@as(usize, 1), notes.items.len);
+    try std.testing.expectEqualStrings("renamed", notes.items[0].title);
+
+    // 5. Delete
+    store.delete(.{ .title = undefined, .filename = "renamed.txt" });
+    try std.testing.expectError(error.FileNotFound, store.readAlloc(allocator, .{ .title = undefined, .filename = "renamed.txt" }));
+}

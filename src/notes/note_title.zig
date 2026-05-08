@@ -58,3 +58,35 @@ test "filenames are text files and avoid path separators" {
 
     try std.testing.expectEqualStrings("daily-notes.txt", filename);
 }
+
+test "sanitizeTitle replaces invalid characters" {
+    const allocator = std.testing.allocator;
+    const sanitized = try sanitizeTitle(allocator, "my:file/name");
+    defer allocator.free(sanitized);
+
+    try std.testing.expectEqualStrings("my-file-name", sanitized);
+}
+
+test "sanitizeTitle handles empty or whitespace titles" {
+    const allocator = std.testing.allocator;
+    const empty = try sanitizeTitle(allocator, "");
+    defer allocator.free(empty);
+    const spaces = try sanitizeTitle(allocator, "   ");
+    defer allocator.free(spaces);
+
+    try std.testing.expectEqualStrings("Untitled", empty);
+    try std.testing.expectEqualStrings("Untitled", spaces);
+}
+
+test "titleFromTextFilename strips extension" {
+    const allocator = std.testing.allocator;
+    const title = try titleFromTextFilename(allocator, "Hello World.txt");
+    defer allocator.free(title);
+
+    try std.testing.expectEqualStrings("Hello World", title);
+}
+
+test "titleFromTextFilename fails on non-text files" {
+    const allocator = std.testing.allocator;
+    try std.testing.expectError(error.NotTextNote, titleFromTextFilename(allocator, "image.png"));
+}

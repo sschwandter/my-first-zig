@@ -25,3 +25,22 @@ pub fn sortByTitle(notes: []Note) void {
         }
     }.lessThan);
 }
+
+test "sortByTitle sorts case-insensitively" {
+    const allocator = std.testing.allocator;
+    var notes = std.ArrayList(Note).init(allocator);
+    defer {
+        for (notes.items) |n| n.deinit(allocator);
+        notes.deinit();
+    }
+
+    try notes.append(.{ .title = try allocator.dupeZ(u8, "Zebra"), .filename = try allocator.dupe(u8, "zebra.txt") });
+    try notes.append(.{ .title = try allocator.dupeZ(u8, "apple"), .filename = try allocator.dupe(u8, "apple.txt") });
+    try notes.append(.{ .title = try allocator.dupeZ(u8, "Banana"), .filename = try allocator.dupe(u8, "banana.txt") });
+
+    sortByTitle(notes.items);
+
+    try std.testing.expectEqualStrings("apple", notes.items[0].title);
+    try std.testing.expectEqualStrings("Banana", notes.items[1].title);
+    try std.testing.expectEqualStrings("Zebra", notes.items[2].title);
+}
