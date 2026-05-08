@@ -13,7 +13,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: macos-15 # Adjust to the latest available standard macOS runner
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Zig
-        uses: mlugg/setup-zig@v1
+        uses: goto-bus-stop/setup-zig@v2
         with:
           version: 0.16.0
 
