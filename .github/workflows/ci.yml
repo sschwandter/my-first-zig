@@ -20,8 +20,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Clone setup-zig from Codeberg
+        run: git clone https://codeberg.org/mlugg/setup-zig ./.github/actions/setup-zig
+
       - name: Setup Zig
-        uses: goto-bus-stop/setup-zig@v2
+        uses: ./.github/actions/setup-zig
         with:
           version: 0.16.0
 
