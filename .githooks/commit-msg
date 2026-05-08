@@ -1,0 +1,20 @@
+#!/bin/sh
+
+commit_msg_file="$1"
+first_line="$(sed -n '1p' "$commit_msg_file")"
+pattern='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9._-]+\))?!?: .+'
+
+if ! printf '%s\n' "$first_line" | grep -Eq "$pattern"; then
+  cat >&2 <<MSG
+Invalid commit message:
+  $first_line
+
+Use Conventional Commits, for example:
+  feat: add note search
+  fix: preserve selected note
+  docs: update contributor guide
+
+Allowed types: build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test
+MSG
+  exit 1
+fi

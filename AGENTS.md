@@ -24,6 +24,7 @@ Generated outputs such as `.zig-cache/`, `zig-out/`, `.DS_Store`, and `/test` ar
 - `zig test src/notes/note_title.zig`: runs focused pure-Zig note-title tests.
 - `zig fmt build.zig src/**/*.zig`: formats Zig sources before committing.
 - `plutil -lint resources/Info.plist "zig-out/Zig Notes.app/Contents/Info.plist"`: validates plist files.
+- `git config core.hooksPath .githooks`: enables the tracked commit-message hook.
 
 ## Coding Style & Naming Conventions
 
@@ -35,7 +36,7 @@ Favor pure Zig tests for domain logic in `src/notes/`. UI behavior is currently 
 
 ## Commit & Pull Request Guidelines
 
-Use Conventional Commits for all new commits, for example `feat: add note search`, `fix: preserve selected note`, or `docs: update contributor guide`. Keep commits focused: one behavior change, refactor, or documentation pass per commit. Pull requests should include a short summary, verification commands run, and screenshots or screen recordings for visible UI changes.
+Use Conventional Commits for all new commits, for example `feat: add note search`, `fix: preserve selected note`, or `docs: update contributor guide`. The tracked `.githooks/commit-msg` hook rejects non-conforming local commits once `core.hooksPath` is configured. Keep commits focused: one behavior change, refactor, or documentation pass per commit. Pull requests should include a short summary, verification commands run, and screenshots or screen recordings for visible UI changes.
 
 ## Architecture Notes
 
