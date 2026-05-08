@@ -12,6 +12,10 @@ pub const ActionCallback = *const fn (rt.Id, rt.Sel, rt.Id) callconv(.c) void;
 pub const NumberRowsCallback = *const fn (rt.Id, rt.Sel, rt.Id) callconv(.c) rt.NSInteger;
 /// Callback shape for `tableView:objectValueForTableColumn:row:`.
 pub const ObjectValueCallback = *const fn (rt.Id, rt.Sel, rt.Id, rt.Id, rt.NSInteger) callconv(.c) rt.Id;
+/// Callback shape for toolbar identifier list selectors.
+pub const ToolbarIdentifiersCallback = *const fn (rt.Id, rt.Sel, rt.Id) callconv(.c) rt.Id;
+/// Callback shape for `toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:`.
+pub const ToolbarItemCallback = *const fn (rt.Id, rt.Sel, rt.Id, rt.Id, bool) callconv(.c) rt.Id;
 
 /// Complete callback table required by the Zig Notes Objective-C delegate.
 pub const Callbacks = struct {
@@ -21,6 +25,9 @@ pub const Callbacks = struct {
     object_value: ObjectValueCallback,
     selection_did_change: ActionCallback,
     text_did_change: ActionCallback,
+    toolbar_allowed_identifiers: ToolbarIdentifiersCallback,
+    toolbar_default_identifiers: ToolbarIdentifiersCallback,
+    toolbar_item: ToolbarItemCallback,
 };
 
 /// Registers the `ZigNotesDelegate` class if it has not been registered yet.
@@ -34,6 +41,9 @@ pub fn register(callbacks: Callbacks) void {
     _ = rt.addMethod(cls, "tableView:objectValueForTableColumn:row:", @ptrCast(callbacks.object_value), "@@:@@q");
     _ = rt.addMethod(cls, "tableViewSelectionDidChange:", @ptrCast(callbacks.selection_did_change), "v@:@");
     _ = rt.addMethod(cls, "textDidChange:", @ptrCast(callbacks.text_did_change), "v@:@");
+    _ = rt.addMethod(cls, "toolbarAllowedItemIdentifiers:", @ptrCast(callbacks.toolbar_allowed_identifiers), "@@:@");
+    _ = rt.addMethod(cls, "toolbarDefaultItemIdentifiers:", @ptrCast(callbacks.toolbar_default_identifiers), "@@:@");
+    _ = rt.addMethod(cls, "toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:", @ptrCast(callbacks.toolbar_item), "@@:@@B");
     rt.registerClassPair(cls);
 }
 

@@ -6,7 +6,9 @@
 //! Objective-C messages themselves.
 
 /// Opaque Objective-C object pointer (`id`).
-pub const Id = *opaque {};
+pub const Id = *allowzero opaque {};
+/// Null Objective-C object pointer for APIs that accept `nil`.
+pub const nil: Id = @ptrFromInt(0);
 /// Opaque Objective-C class pointer (`Class`).
 pub const Class = *opaque {};
 /// Opaque Objective-C selector pointer (`SEL`).
@@ -38,6 +40,7 @@ const MsgIdIdId = *const fn (Id, Sel, Id, Id) callconv(.c) Id;
 const MsgIdCString = *const fn (Id, Sel, [*:0]const u8) callconv(.c) Id;
 const MsgIdRect = *const fn (Id, Sel, NSRect) callconv(.c) Id;
 const MsgIdSelId = *const fn (Id, Sel, Id, Sel, Id) callconv(.c) Id;
+const MsgIdDouble = *const fn (Id, Sel, f64) callconv(.c) Id;
 const MsgIdUInteger = *const fn (Id, Sel, NSUInteger) callconv(.c) Id;
 const MsgInteger = *const fn (Id, Sel) callconv(.c) NSInteger;
 const MsgRect = *const fn (Id, Sel) callconv(.c) NSRect;
@@ -50,6 +53,8 @@ const MsgVoidId = *const fn (Id, Sel, Id) callconv(.c) void;
 const MsgVoidIdBool = *const fn (Id, Sel, Id, bool) callconv(.c) void;
 const MsgVoidIdId = *const fn (Id, Sel, Id, Id) callconv(.c) void;
 const MsgVoidInteger = *const fn (Id, Sel, NSInteger) callconv(.c) void;
+const MsgVoidSel = *const fn (Id, Sel, Sel) callconv(.c) void;
+const MsgVoidSize = *const fn (Id, Sel, NSSize) callconv(.c) void;
 const MsgVoidUInteger = *const fn (Id, Sel, NSUInteger) callconv(.c) void;
 const MsgWindowInit = *const fn (Id, Sel, NSRect, NSUInteger, NSUInteger, bool) callconv(.c) Id;
 
@@ -59,6 +64,7 @@ const objc_msgSend_id_id_id = @extern(MsgIdIdId, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_cstring = @extern(MsgIdCString, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_rect = @extern(MsgIdRect, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_sel_id = @extern(MsgIdSelId, .{ .name = "objc_msgSend" });
+const objc_msgSend_id_double = @extern(MsgIdDouble, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_uinteger = @extern(MsgIdUInteger, .{ .name = "objc_msgSend" });
 const objc_msgSend_integer = @extern(MsgInteger, .{ .name = "objc_msgSend" });
 const objc_msgSend_rect = @extern(MsgRect, .{ .name = "objc_msgSend" });
@@ -71,6 +77,8 @@ const objc_msgSend_void_id = @extern(MsgVoidId, .{ .name = "objc_msgSend" });
 const objc_msgSend_void_id_bool = @extern(MsgVoidIdBool, .{ .name = "objc_msgSend" });
 const objc_msgSend_void_id_id = @extern(MsgVoidIdId, .{ .name = "objc_msgSend" });
 const objc_msgSend_void_integer = @extern(MsgVoidInteger, .{ .name = "objc_msgSend" });
+const objc_msgSend_void_sel = @extern(MsgVoidSel, .{ .name = "objc_msgSend" });
+const objc_msgSend_void_size = @extern(MsgVoidSize, .{ .name = "objc_msgSend" });
 const objc_msgSend_void_uinteger = @extern(MsgVoidUInteger, .{ .name = "objc_msgSend" });
 const objc_msgSend_window_init = @extern(MsgWindowInit, .{ .name = "objc_msgSend" });
 
@@ -127,6 +135,11 @@ pub fn msgIdId(receiver: Id, sel: [:0]const u8, a: Id, b: Id) Id {
 /// Sends an object, selector, object message returning an object.
 pub fn msgIdSelId(receiver: Id, sel: [:0]const u8, a: Id, b: Sel, c: Id) Id {
     return objc_msgSend_id_sel_id(receiver, selector(sel), a, b, c);
+}
+
+/// Sends one double argument returning an object.
+pub fn msgDouble(receiver: Id, sel: [:0]const u8, arg: f64) Id {
+    return objc_msgSend_id_double(receiver, selector(sel), arg);
 }
 
 /// Sends a null-terminated UTF-8 C string argument returning an object.
@@ -197,6 +210,16 @@ pub fn msgVoidIdId(receiver: Id, sel: [:0]const u8, a: Id, b: Id) void {
 /// Sends one `NSInteger` argument returning void.
 pub fn msgVoidInteger(receiver: Id, sel: [:0]const u8, arg: NSInteger) void {
     objc_msgSend_void_integer(receiver, selector(sel), arg);
+}
+
+/// Sends one selector argument returning void.
+pub fn msgVoidSel(receiver: Id, sel: [:0]const u8, arg: Sel) void {
+    objc_msgSend_void_sel(receiver, selector(sel), arg);
+}
+
+/// Sends one `NSSize` argument returning void.
+pub fn msgVoidSize(receiver: Id, sel: [:0]const u8, arg: NSSize) void {
+    objc_msgSend_void_size(receiver, selector(sel), arg);
 }
 
 /// Sends one `NSUInteger` argument returning void.

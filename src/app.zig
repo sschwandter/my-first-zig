@@ -29,6 +29,9 @@ pub fn run(init: std.process.Init) !void {
         .object_value = controller_callbacks.tableObjectValue,
         .selection_did_change = controller_callbacks.tableSelectionDidChange,
         .text_did_change = controller_callbacks.textDidChange,
+        .toolbar_allowed_identifiers = controller_callbacks.toolbarAllowedItemIdentifiers,
+        .toolbar_default_identifiers = controller_callbacks.toolbarDefaultItemIdentifiers,
+        .toolbar_item = controller_callbacks.toolbarItemForIdentifier,
     });
     const delegate = delegate_class.create();
     controller.delegate = delegate;

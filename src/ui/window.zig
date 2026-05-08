@@ -9,6 +9,7 @@ const rt = @import("../cocoa/runtime.zig");
 const AppController = @import("app_controller.zig").AppController;
 const editor = @import("editor.zig");
 const notes_sidebar = @import("notes_sidebar.zig");
+const toolbar = @import("toolbar.zig");
 
 /// Creates the primary Zig Notes window and shows it.
 pub fn build(controller: *AppController, delegate: rt.Id) void {
@@ -16,7 +17,8 @@ pub fn build(controller: *AppController, delegate: rt.Id) void {
         appkit.window_style_closable |
         appkit.window_style_miniaturizable |
         appkit.window_style_resizable;
-    const frame = rt.NSRect{ .origin = .{ .x = 0, .y = 0 }, .size = .{ .width = 860, .height = 560 } };
+    const sidebar_width = 260;
+    const frame = rt.NSRect{ .origin = .{ .x = 0, .y = 0 }, .size = .{ .width = 980, .height = 660 } };
 
     const window = rt.msgWindowInit(
         rt.msg(rt.class("NSWindow"), "alloc"),
@@ -27,6 +29,9 @@ pub fn build(controller: *AppController, delegate: rt.Id) void {
         false,
     );
     rt.msgVoidId(window, "setTitle:", foundation.nsString("Zig Notes"));
+    rt.msgVoidSize(window, "setMinSize:", .{ .width = 740, .height = 460 });
+    rt.msgVoidInteger(window, "setToolbarStyle:", appkit.window_toolbar_style_unified);
+    toolbar.attach(window, delegate);
     rt.msgVoid(window, "center");
 
     const content_view = rt.msg(window, "contentView");
@@ -35,8 +40,8 @@ pub fn build(controller: *AppController, delegate: rt.Id) void {
     rt.msgVoidBool(split_view, "setVertical:", true);
     rt.msgVoidUInteger(split_view, "setAutoresizingMask:", appkit.view_width_sizable | appkit.view_height_sizable);
 
-    const sidebar_frame = rt.NSRect{ .origin = .{ .x = 0, .y = 0 }, .size = .{ .width = 220, .height = bounds.size.height } };
-    const editor_frame = rt.NSRect{ .origin = .{ .x = 0, .y = 0 }, .size = .{ .width = bounds.size.width - 220, .height = bounds.size.height } };
+    const sidebar_frame = rt.NSRect{ .origin = .{ .x = 0, .y = 0 }, .size = .{ .width = sidebar_width, .height = bounds.size.height } };
+    const editor_frame = rt.NSRect{ .origin = .{ .x = 0, .y = 0 }, .size = .{ .width = bounds.size.width - sidebar_width, .height = bounds.size.height } };
 
     const sidebar = notes_sidebar.build(sidebar_frame, delegate);
     const note_editor = editor.build(editor_frame, delegate);
@@ -44,7 +49,7 @@ pub fn build(controller: *AppController, delegate: rt.Id) void {
 
     rt.msgVoidId(split_view, "addSubview:", sidebar.scroll_view);
     rt.msgVoidId(split_view, "addSubview:", note_editor.scroll_view);
-    rt.msgVoidDoubleInteger(split_view, "setPosition:ofDividerAtIndex:", 220, 0);
+    rt.msgVoidDoubleInteger(split_view, "setPosition:ofDividerAtIndex:", sidebar_width, 0);
     rt.msgVoidId(content_view, "addSubview:", split_view);
     rt.msgVoidId(window, "makeKeyAndOrderFront:", window);
 }

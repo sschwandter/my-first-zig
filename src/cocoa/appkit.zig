@@ -23,6 +23,16 @@ pub const window_style_resizable: rt.NSUInteger = 1 << 3;
 pub const view_width_sizable: rt.NSUInteger = 1 << 1;
 /// Autoresizing mask bit allowing height changes with the parent view.
 pub const view_height_sizable: rt.NSUInteger = 1 << 4;
+/// Border type for views that should visually merge with the window.
+pub const no_border: rt.NSInteger = 0;
+/// Toolbar display mode showing both SF Symbol icons and labels.
+pub const toolbar_display_mode_icon_and_label: rt.NSInteger = 1;
+/// Unified window toolbar style used by modern document-style apps.
+pub const window_toolbar_style_unified: rt.NSInteger = 1;
+/// Source-list table style for sidebar-like lists.
+pub const table_style_source_list: rt.NSInteger = 1;
+/// Source-list selection highlight style for sidebar rows.
+pub const table_selection_highlight_style_source_list: rt.NSInteger = 1;
 
 /// Returns the singleton `NSApplication` instance.
 pub fn sharedApplication() rt.Id {

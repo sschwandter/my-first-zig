@@ -16,6 +16,7 @@ pub const Editor = struct {
 pub fn build(frame: rt.NSRect, delegate: rt.Id) Editor {
     const scroll = rt.msgRectArg(rt.msg(rt.class("NSScrollView"), "alloc"), "initWithFrame:", frame);
     rt.msgVoidBool(scroll, "setHasVerticalScroller:", true);
+    rt.msgVoidInteger(scroll, "setBorderType:", appkit.no_border);
     rt.msgVoidUInteger(scroll, "setAutoresizingMask:", appkit.view_width_sizable | appkit.view_height_sizable);
 
     const text = rt.msgRectArg(rt.msg(rt.class("NSTextView"), "alloc"), "initWithFrame:", frame);
@@ -23,7 +24,19 @@ pub fn build(frame: rt.NSRect, delegate: rt.Id) Editor {
     rt.msgVoidBool(text, "setUsesFontPanel:", false);
     rt.msgVoidBool(text, "setAutomaticQuoteSubstitutionEnabled:", false);
     rt.msgVoidBool(text, "setAutomaticDashSubstitutionEnabled:", false);
+    rt.msgVoidBool(text, "setDrawsBackground:", true);
+    rt.msgVoidId(text, "setBackgroundColor:", rt.msg(rt.class("NSColor"), "textBackgroundColor"));
+    rt.msgVoidId(text, "setTextColor:", rt.msg(rt.class("NSColor"), "labelColor"));
+    rt.msgVoidId(text, "setFont:", rt.msgDouble(rt.class("NSFont"), "systemFontOfSize:", 17));
+    rt.msgVoidSize(text, "setTextContainerInset:", .{ .width = 32, .height = 28 });
+    rt.msgVoidBool(text, "setHorizontallyResizable:", false);
+    rt.msgVoidBool(text, "setVerticallyResizable:", true);
     rt.msgVoidId(text, "setDelegate:", delegate);
+
+    const text_container = rt.msg(text, "textContainer");
+    rt.msgVoidBool(text_container, "setWidthTracksTextView:", true);
+    rt.msgVoidDouble(text_container, "setLineFragmentPadding:", 0);
+
     rt.msgVoidId(scroll, "setDocumentView:", text);
 
     return .{ .scroll_view = scroll, .text_view = text };

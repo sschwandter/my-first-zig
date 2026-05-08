@@ -12,6 +12,7 @@ const Note = @import("../notes/note.zig").Note;
 const note = @import("../notes/note.zig");
 const note_title = @import("../notes/note_title.zig");
 const NoteStore = @import("../notes/note_store.zig").NoteStore;
+const toolbar = @import("toolbar.zig");
 
 /// Coordinates note storage, in-memory selection state, and AppKit view updates.
 pub const AppController = struct {
@@ -216,4 +217,19 @@ pub fn tableSelectionDidChange(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void 
 /// Objective-C delegate trampoline for editor text changes.
 pub fn textDidChange(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     if (current()) |controller| controller.saveSelectedNote();
+}
+
+/// Objective-C toolbar delegate trampoline returning all supported toolbar identifiers.
+pub fn toolbarAllowedItemIdentifiers(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) rt.Id {
+    return toolbar.itemIdentifiers();
+}
+
+/// Objective-C toolbar delegate trampoline returning the default toolbar identifiers.
+pub fn toolbarDefaultItemIdentifiers(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) rt.Id {
+    return toolbar.itemIdentifiers();
+}
+
+/// Objective-C toolbar delegate trampoline creating an item for one identifier.
+pub fn toolbarItemForIdentifier(delegate: rt.Id, _: rt.Sel, _: rt.Id, item_identifier: rt.Id, _: bool) callconv(.c) rt.Id {
+    return toolbar.itemForIdentifier(delegate, item_identifier);
 }
