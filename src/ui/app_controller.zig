@@ -156,6 +156,50 @@ pub const AppController = struct {
         self.selectNote(@intCast(row));
     }
 
+    /// Updates the title and filename for a note at a specific sidebar row.
+    pub fn updateNoteTitle(self: *AppController, row: rt.NSInteger, object_value: rt.Id) void {
+        if (row < 0) return;
+        const index: usize = @intCast(row);
+        if (index >= self.notes.items.len) return;
+
+        const new_title_z = std.mem.span(foundation.utf8String(object_value));
+        if (new_title_z.len == 0) return;
+        if (std.mem.eql(u8, self.notes.items[index].title, new_title_z)) return;
+
+        const new_filename = note_title.filenameFromTitle(self.allocator, new_title_z) catch return;
+        errdefer self.allocator.free(new_filename);
+
+        // Disallow renaming if a file with the target name already exists.
+        if (self.indexOfFilename(new_filename) != null) {
+            self.allocator.free(new_filename);
+            self.reloadSidebar();
+            return;
+        }
+
+        self.store.rename(self.notes.items[index].filename, new_filename) catch |err| {
+            std.log.err("failed to rename note: {t}", .{err});
+            self.allocator.free(new_filename);
+            self.reloadSidebar();
+            return;
+        };
+
+        const new_title = self.allocator.dupeZ(u8, new_title_z) catch {
+            self.allocator.free(new_filename);
+            return;
+        };
+
+        const old_note = self.notes.items[index];
+        self.notes.items[index].title = new_title;
+        self.notes.items[index].filename = new_filename;
+        old_note.deinit(self.allocator);
+
+        note.sortByTitle(self.notes.items);
+        self.reloadSidebar();
+
+        // Re-select the note at its potentially new position.
+        if (self.indexOfTitle(new_title)) |new_index| self.selectNote(new_index);
+    }
+
     fn reloadSidebar(self: *AppController) void {
         if (self.table_view) |table| rt.msgVoid(table, "reloadData");
     }
@@ -221,6 +265,11 @@ pub fn numberOfRowsInTableView(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) rt.NS
 pub fn tableObjectValue(_: rt.Id, _: rt.Sel, _: rt.Id, _: rt.Id, row: rt.NSInteger) callconv(.c) rt.Id {
     const controller = current() orelse return foundation.nsString("");
     return controller.titleForRow(row);
+}
+
+/// Objective-C data-source trampoline for sidebar title edits.
+pub fn tableSetObjectValue(_: rt.Id, _: rt.Sel, _: rt.Id, object_value: rt.Id, _: rt.Id, row: rt.NSInteger) callconv(.c) void {
+    if (current()) |controller| controller.updateNoteTitle(row, object_value);
 }
 
 /// Objective-C delegate trampoline for sidebar selection changes.

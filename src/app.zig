@@ -28,6 +28,7 @@ pub fn run(init: std.process.Init) !void {
         .toggle_sidebar = controller_callbacks.toggleSidebarAction,
         .number_of_rows = controller_callbacks.numberOfRowsInTableView,
         .object_value = controller_callbacks.tableObjectValue,
+        .set_object_value = controller_callbacks.tableSetObjectValue,
         .selection_did_change = controller_callbacks.tableSelectionDidChange,
         .text_did_change = controller_callbacks.textDidChange,
         .toolbar_allowed_identifiers = controller_callbacks.toolbarAllowedItemIdentifiers,

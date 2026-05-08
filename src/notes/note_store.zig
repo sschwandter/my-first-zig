@@ -71,4 +71,9 @@ pub const NoteStore = struct {
     pub fn save(self: *NoteStore, note: Note, text: []const u8) !void {
         try Io.Dir.writeFile(self.dir, self.io, .{ .sub_path = note.filename, .data = text });
     }
+
+    /// Renames a note file on disk.
+    pub fn rename(self: *NoteStore, old_filename: []const u8, new_filename: []const u8) !void {
+        try Io.Dir.rename(self.dir, old_filename, self.dir, new_filename, self.io);
+    }
 };

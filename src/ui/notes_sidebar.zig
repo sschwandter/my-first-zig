@@ -29,6 +29,7 @@ pub fn build(frame: rt.NSRect, delegate: rt.Id) NotesSidebar {
     const column = rt.msgId(rt.msg(rt.class("NSTableColumn"), "alloc"), "initWithIdentifier:", foundation.nsString("notes"));
     rt.msgVoidDouble(column, "setWidth:", frame.size.width);
     rt.msgVoidId(column, "setTitle:", foundation.nsString("Notes"));
+    rt.msgVoidBool(column, "setEditable:", true);
     rt.msgVoidId(table, "addTableColumn:", column);
     rt.msgVoidId(table, "setDataSource:", delegate);
     rt.msgVoidId(table, "setDelegate:", delegate);
