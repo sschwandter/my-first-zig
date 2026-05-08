@@ -95,5 +95,11 @@ fn toolbarItem(identifier: rt.Id, target: rt.Id, options: ToolbarItemOptions) rt
         foundation.nsString(options.palette_label),
     );
     rt.msgVoidId(item, "setImage:", image);
+
+    const button = rt.msg(item, "view");
+    if (button != rt.nil) {
+        rt.msgVoidInteger(button, "setBezelStyle:", appkit.bezel_style_glass);
+    }
+
     return item;
 }

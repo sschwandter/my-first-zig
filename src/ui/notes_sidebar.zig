@@ -14,11 +14,9 @@ pub const NotesSidebar = struct {
 
 /// Creates a sidebar table and connects its data source and delegate.
 pub fn build(frame: rt.NSRect, delegate: rt.Id) NotesSidebar {
-    const visual_effect = rt.msgRectArg(rt.msg(rt.class("NSVisualEffectView"), "alloc"), "initWithFrame:", frame);
-    rt.msgVoidInteger(visual_effect, "setMaterial:", appkit.visual_effect_material_sidebar);
-    rt.msgVoidInteger(visual_effect, "setBlendingMode:", appkit.visual_effect_blending_mode_behind_window);
-    rt.msgVoidInteger(visual_effect, "setState:", appkit.visual_effect_state_follows_window);
-    rt.msgVoidUInteger(visual_effect, "setAutoresizingMask:", appkit.view_height_sizable);
+    const glass_view = rt.msgRectArg(rt.msg(rt.class("NSGlassEffectView"), "alloc"), "initWithFrame:", frame);
+    rt.msgVoidInteger(glass_view, "setStyle:", 0); // NSGlassEffectViewStyleRegular
+    rt.msgVoidUInteger(glass_view, "setAutoresizingMask:", appkit.view_height_sizable);
 
     const scroll = rt.msgRectArg(rt.msg(rt.class("NSScrollView"), "alloc"), "initWithFrame:", frame);
     rt.msgVoidBool(scroll, "setHasVerticalScroller:", true);
@@ -42,7 +40,7 @@ pub fn build(frame: rt.NSRect, delegate: rt.Id) NotesSidebar {
     rt.msgVoidInteger(table, "setStyle:", appkit.table_style_source_list);
     rt.msgVoidId(table, "setBackgroundColor:", rt.msg(rt.class("NSColor"), "clearColor"));
     rt.msgVoidId(scroll, "setDocumentView:", table);
-    rt.msgVoidId(visual_effect, "addSubview:", scroll);
+    rt.msgVoidId(glass_view, "addSubview:", scroll);
 
-    return .{ .scroll_view = visual_effect, .table_view = table };
+    return .{ .scroll_view = glass_view, .table_view = table };
 }

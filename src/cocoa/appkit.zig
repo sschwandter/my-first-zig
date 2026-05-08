@@ -47,13 +47,23 @@ pub const table_selection_highlight_style_source_list: rt.NSInteger = 1;
 
 /// Sidebar visual effect material for translucent backgrounds.
 pub const visual_effect_material_sidebar: rt.NSInteger = 3;
+/// Modern refractive glass material introduced in macOS 26.
+pub const visual_effect_material_glass: rt.NSInteger = 30;
 /// Behind-window blending mode for visual effect views.
 pub const visual_effect_blending_mode_behind_window: rt.NSInteger = 0;
+/// Within-window blending mode for visual effect views.
+pub const visual_effect_blending_mode_within_window: rt.NSInteger = 1;
+
 /// Visual effect state that follows the window's active/inactive state.
 pub const visual_effect_state_follows_window: rt.NSInteger = 0;
 
 /// Thin divider style for split views.
 pub const split_view_divider_style_thin: rt.NSInteger = 2;
+
+/// Standard bezel style for buttons.
+pub const bezel_style_rounded: rt.NSInteger = 1;
+/// Modern glass bezel style for buttons.
+pub const bezel_style_glass: rt.NSInteger = 15;
 
 /// Returns the singleton `NSApplication` instance.
 pub fn sharedApplication() rt.Id {
