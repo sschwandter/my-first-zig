@@ -1,4 +1,7 @@
-//! By convention, root.zig is the root source file when making a package.
+//! Small reusable package module kept separate from the AppKit executable.
+//!
+//! The GUI app does not depend heavily on this yet; it remains useful as a
+//! minimal pure-Zig module with tests while the application grows.
 const std = @import("std");
 const Io = std.Io;
 
@@ -9,6 +12,7 @@ pub fn printAnotherMessage(writer: *Io.Writer) Io.Writer.Error!void {
     try writer.print("Run `zig build test` to run the tests.\n", .{});
 }
 
+/// Adds two signed integers.
 pub fn add(a: i32, b: i32) i32 {
     return a + b;
 }

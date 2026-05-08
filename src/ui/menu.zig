@@ -1,7 +1,13 @@
+//! Main menu construction.
+//!
+//! Builds the standard application menu and File menu, wiring menu items to
+//! either `NSApplication` or the Zig Notes delegate object.
+
 const appkit = @import("../cocoa/appkit.zig");
 const foundation = @import("../cocoa/foundation.zig");
 const rt = @import("../cocoa/runtime.zig");
 
+/// Creates and installs the app menu bar for Zig Notes.
 pub fn build(app: rt.Id, delegate: rt.Id) void {
     const menubar = appkit.allocInit("NSMenu");
     rt.msgVoidId(app, "setMainMenu:", menubar);

@@ -1,12 +1,18 @@
+//! Notes sidebar construction.
+//!
+//! Builds the scroll view and `NSTableView` that lists available note titles.
+
 const appkit = @import("../cocoa/appkit.zig");
 const foundation = @import("../cocoa/foundation.zig");
 const rt = @import("../cocoa/runtime.zig");
 
+/// AppKit objects that make up the note list sidebar.
 pub const NotesSidebar = struct {
     scroll_view: rt.Id,
     table_view: rt.Id,
 };
 
+/// Creates a sidebar table and connects its data source and delegate.
 pub fn build(frame: rt.NSRect, delegate: rt.Id) NotesSidebar {
     const scroll = rt.msgRectArg(rt.msg(rt.class("NSScrollView"), "alloc"), "initWithFrame:", frame);
     rt.msgVoidBool(scroll, "setHasVerticalScroller:", true);

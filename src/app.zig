@@ -1,3 +1,8 @@
+//! Application composition root.
+//!
+//! This module wires together storage, controller state, Objective-C delegate
+//! registration, menus, the main window, and the AppKit run loop.
+
 const std = @import("std");
 
 const appkit = @import("cocoa/appkit.zig");
@@ -9,6 +14,7 @@ const controller_callbacks = @import("ui/app_controller.zig");
 const menu = @import("ui/menu.zig");
 const window = @import("ui/window.zig");
 
+/// Builds the app graph and enters AppKit's event loop.
 pub fn run(init: std.process.Init) !void {
     const allocator = init.arena.allocator();
     const store = try NoteStore.openDocuments(allocator, init.io);

@@ -1,3 +1,9 @@
+//! Application behavior controller for Zig Notes.
+//!
+//! This module is the boundary between AppKit callbacks and note-domain logic.
+//! It owns the current note list, selected note, view references, and user
+//! actions such as create, delete, select, and save.
+
 const std = @import("std");
 
 const foundation = @import("../cocoa/foundation.zig");
@@ -7,6 +13,7 @@ const note = @import("../notes/note.zig");
 const note_title = @import("../notes/note_title.zig");
 const NoteStore = @import("../notes/note_store.zig").NoteStore;
 
+/// Coordinates note storage, in-memory selection state, and AppKit view updates.
 pub const AppController = struct {
     allocator: std.mem.Allocator,
     store: NoteStore,
@@ -17,27 +24,32 @@ pub const AppController = struct {
     delegate: ?rt.Id = null,
     suppress_text_change: bool = false,
 
+    /// Creates a controller around an already opened note store.
     pub fn init(allocator: std.mem.Allocator, store: NoteStore) AppController {
         return .{ .allocator = allocator, .store = store };
     }
 
+    /// Releases loaded notes and closes the underlying note store.
     pub fn deinit(self: *AppController) void {
         for (self.notes.items) |item| item.deinit(self.allocator);
         self.notes.deinit(self.allocator);
         self.store.deinit();
     }
 
+    /// Loads notes from disk and creates the welcome note when the directory is empty.
     pub fn loadInitialNotes(self: *AppController) !void {
         try self.store.load(self.allocator, &self.notes);
         note.sortByTitle(self.notes.items);
         if (self.notes.items.len == 0) try self.createNote("Welcome");
     }
 
+    /// Attaches the AppKit views the controller must refresh or read from.
     pub fn setViews(self: *AppController, table_view: rt.Id, text_view: rt.Id) void {
         self.table_view = table_view;
         self.text_view = text_view;
     }
 
+    /// Creates a new empty note using the first available numbered title.
     pub fn createNote(self: *AppController, base_title: []const u8) !void {
         var n: usize = 1;
         while (true) : (n += 1) {
@@ -62,6 +74,7 @@ pub const AppController = struct {
         }
     }
 
+    /// Deletes the selected note and selects a neighboring note when possible.
     pub fn deleteSelectedNote(self: *AppController) void {
         const index = self.selected_index orelse return;
         if (index >= self.notes.items.len) return;
@@ -80,6 +93,7 @@ pub const AppController = struct {
         }
     }
 
+    /// Selects a note, updates the sidebar selection, and loads text into the editor.
     pub fn selectNote(self: *AppController, index: usize) void {
         if (index >= self.notes.items.len) return;
         self.selected_index = index;
@@ -104,6 +118,7 @@ pub const AppController = struct {
         }
     }
 
+    /// Saves the selected note from the current `NSTextView` contents.
     pub fn saveSelectedNote(self: *AppController) void {
         if (self.suppress_text_change) return;
         const index = self.selected_index orelse return;
@@ -117,10 +132,12 @@ pub const AppController = struct {
         };
     }
 
+    /// Returns the number of rows the sidebar table should display.
     pub fn numberOfRows(self: *AppController) rt.NSInteger {
         return @intCast(self.notes.items.len);
     }
 
+    /// Returns the display title object for a sidebar table row.
     pub fn titleForRow(self: *AppController, row: rt.NSInteger) rt.Id {
         if (row < 0) return foundation.nsString("");
         const index: usize = @intCast(row);
@@ -128,6 +145,7 @@ pub const AppController = struct {
         return foundation.nsString(self.notes.items[index].title);
     }
 
+    /// Reads the selected row from `NSTableView` and selects the matching note.
     pub fn selectRowFromTable(self: *AppController) void {
         const table = self.table_view orelse return;
         const row = rt.msgInteger(table, "selectedRow");
@@ -156,38 +174,46 @@ pub const AppController = struct {
 
 var current_controller: ?*AppController = null;
 
+/// Sets the controller used by Objective-C callback trampolines.
 pub fn setCurrent(controller: *AppController) void {
     current_controller = controller;
 }
 
+/// Returns the controller currently serving Objective-C callbacks.
 pub fn current() ?*AppController {
     return current_controller;
 }
 
+/// Objective-C action trampoline for `File > New Note`.
 pub fn newNoteAction(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     if (current()) |controller| controller.createNote("Untitled") catch |err| {
         std.log.err("failed to create note: {t}", .{err});
     };
 }
 
+/// Objective-C action trampoline for `File > Delete Note`.
 pub fn deleteNoteAction(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     if (current()) |controller| controller.deleteSelectedNote();
 }
 
+/// Objective-C data-source trampoline returning the sidebar row count.
 pub fn numberOfRowsInTableView(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) rt.NSInteger {
     const controller = current() orelse return 0;
     return controller.numberOfRows();
 }
 
+/// Objective-C data-source trampoline returning a note title for one sidebar row.
 pub fn tableObjectValue(_: rt.Id, _: rt.Sel, _: rt.Id, _: rt.Id, row: rt.NSInteger) callconv(.c) rt.Id {
     const controller = current() orelse return foundation.nsString("");
     return controller.titleForRow(row);
 }
 
+/// Objective-C delegate trampoline for sidebar selection changes.
 pub fn tableSelectionDidChange(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     if (current()) |controller| controller.selectRowFromTable();
 }
 
+/// Objective-C delegate trampoline for editor text changes.
 pub fn textDidChange(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     if (current()) |controller| controller.saveSelectedNote();
 }

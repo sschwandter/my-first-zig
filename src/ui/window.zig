@@ -1,3 +1,8 @@
+//! Main window construction.
+//!
+//! Builds the top-level `NSWindow`, split view, sidebar, and editor. It returns
+//! persistent view references to the controller via `setViews`.
+
 const appkit = @import("../cocoa/appkit.zig");
 const foundation = @import("../cocoa/foundation.zig");
 const rt = @import("../cocoa/runtime.zig");
@@ -5,6 +10,7 @@ const AppController = @import("app_controller.zig").AppController;
 const editor = @import("editor.zig");
 const notes_sidebar = @import("notes_sidebar.zig");
 
+/// Creates the primary Zig Notes window and shows it.
 pub fn build(controller: *AppController, delegate: rt.Id) void {
     const style = appkit.window_style_titled |
         appkit.window_style_closable |

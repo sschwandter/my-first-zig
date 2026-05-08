@@ -1,11 +1,18 @@
+//! Editor view construction.
+//!
+//! Builds the scroll view and plain-text `NSTextView` used for editing the
+//! selected note body.
+
 const appkit = @import("../cocoa/appkit.zig");
 const rt = @import("../cocoa/runtime.zig");
 
+/// AppKit objects that make up the note editor area.
 pub const Editor = struct {
     scroll_view: rt.Id,
     text_view: rt.Id,
 };
 
+/// Creates a scrollable plain-text editor and assigns its delegate.
 pub fn build(frame: rt.NSRect, delegate: rt.Id) Editor {
     const scroll = rt.msgRectArg(rt.msg(rt.class("NSScrollView"), "alloc"), "initWithFrame:", frame);
     rt.msgVoidBool(scroll, "setHasVerticalScroller:", true);

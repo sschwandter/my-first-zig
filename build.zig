@@ -1,3 +1,8 @@
+//! Build graph for Zig Notes.
+//!
+//! This file links the Zig executable against macOS AppKit/Foundation,
+//! installs a minimal `.app` bundle, and keeps the standard test/run steps.
+
 const std = @import("std");
 
 // Although this function looks imperative, it does not perform the build
@@ -6,6 +11,8 @@ const std = @import("std");
 // for defining build steps and express dependencies between them, allowing the
 // build runner to parallelize the build automatically (and the cache system to
 // know when a step doesn't need to be re-run).
+/// Defines the package module, native AppKit executable, app bundle install,
+/// run step, and test step used by `zig build`.
 pub fn build(b: *std.Build) void {
     // Standard target options allow the person running `zig build` to choose
     // what target to build for. Here we do not override the defaults, which
