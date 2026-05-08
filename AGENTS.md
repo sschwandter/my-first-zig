@@ -35,7 +35,7 @@ Favor pure Zig tests for domain logic in `src/notes/`. UI behavior is currently 
 
 ## Commit & Pull Request Guidelines
 
-History uses short imperative commit subjects, for example `Build native Zig Notes app` and `Document Zig Notes modules`. Keep commits focused: one behavior change, refactor, or documentation pass per commit. Pull requests should include a short summary, verification commands run, and screenshots or screen recordings for visible UI changes.
+Use Conventional Commits for all new commits, for example `feat: add note search`, `fix: preserve selected note`, or `docs: update contributor guide`. Keep commits focused: one behavior change, refactor, or documentation pass per commit. Pull requests should include a short summary, verification commands run, and screenshots or screen recordings for visible UI changes.
 
 ## Architecture Notes
 
