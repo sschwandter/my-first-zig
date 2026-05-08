@@ -84,9 +84,10 @@ pub fn build(b: *std.Build) void {
     });
     exe.root_module.linkFramework("AppKit", .{});
     exe.root_module.linkFramework("Foundation", .{});
+    exe.root_module.linkSystemLibrary("c", .{});
     exe.root_module.linkSystemLibrary("objc", .{});
 
-    const app_name = "My First Zig";
+    const app_name = "Zig Notes";
     const app_bundle_path = app_name ++ ".app";
 
     // Install a minimal macOS app bundle so the result is recognizable from Finder.
