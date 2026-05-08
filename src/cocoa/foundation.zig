@@ -19,3 +19,13 @@ pub fn indexSetWithIndex(index: usize) rt.Id {
 pub fn utf8String(string: rt.Id) [*:0]const u8 {
     return rt.msgCStringReturn(string, "UTF8String");
 }
+
+/// Returns a system font of the given size.
+pub fn systemFont(size: f64) rt.Id {
+    return rt.msgDouble(rt.class("NSFont"), "systemFontOfSize:", size);
+}
+
+/// Returns a system font of the given size and weight.
+pub fn systemFontWeight(size: f64, weight: f64) rt.Id {
+    return rt.msgDoubleDouble(rt.class("NSFont"), "systemFontOfSize:weight:", size, weight);
+}

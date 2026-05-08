@@ -12,6 +12,8 @@ pub const ActionCallback = *const fn (rt.Id, rt.Sel, rt.Id) callconv(.c) void;
 pub const NumberRowsCallback = *const fn (rt.Id, rt.Sel, rt.Id) callconv(.c) rt.NSInteger;
 /// Callback shape for `tableView:objectValueForTableColumn:row:`.
 pub const ObjectValueCallback = *const fn (rt.Id, rt.Sel, rt.Id, rt.Id, rt.NSInteger) callconv(.c) rt.Id;
+/// Callback shape for `tableView:viewForTableColumn:row:`.
+pub const TableViewViewCallback = *const fn (rt.Id, rt.Sel, rt.Id, rt.Id, rt.NSInteger) callconv(.c) rt.Id;
 /// Callback shape for `tableView:setObjectValue:forTableColumn:row:`.
 pub const SetObjectValueCallback = *const fn (rt.Id, rt.Sel, rt.Id, rt.Id, rt.Id, rt.NSInteger) callconv(.c) void;
 /// Callback shape for toolbar identifier list selectors.
@@ -26,6 +28,7 @@ pub const Callbacks = struct {
     toggle_sidebar: ActionCallback,
     number_of_rows: NumberRowsCallback,
     object_value: ObjectValueCallback,
+    view_for_column: TableViewViewCallback,
     set_object_value: SetObjectValueCallback,
     selection_did_change: ActionCallback,
     text_did_change: ActionCallback,
@@ -44,6 +47,7 @@ pub fn register(callbacks: Callbacks) void {
     _ = rt.addMethod(cls, "toggleSidebar:", @ptrCast(callbacks.toggle_sidebar), "v@:@");
     _ = rt.addMethod(cls, "numberOfRowsInTableView:", @ptrCast(callbacks.number_of_rows), "q@:@");
     _ = rt.addMethod(cls, "tableView:objectValueForTableColumn:row:", @ptrCast(callbacks.object_value), "@@:@@q");
+    _ = rt.addMethod(cls, "tableView:viewForTableColumn:row:", @ptrCast(callbacks.view_for_column), "@@:@@q");
     _ = rt.addMethod(cls, "tableView:setObjectValue:forTableColumn:row:", @ptrCast(callbacks.set_object_value), "v@:@@@q");
     _ = rt.addMethod(cls, "tableViewSelectionDidChange:", @ptrCast(callbacks.selection_did_change), "v@:@");
     _ = rt.addMethod(cls, "textDidChange:", @ptrCast(callbacks.text_did_change), "v@:@");

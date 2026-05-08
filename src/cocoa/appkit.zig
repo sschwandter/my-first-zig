@@ -65,6 +65,17 @@ pub const bezel_style_rounded: rt.NSInteger = 1;
 /// Modern glass bezel style for buttons.
 pub const bezel_style_glass: rt.NSInteger = 15;
 
+/// Font weight constants for system fonts.
+pub const font_weight_regular: f64 = 0;
+pub const font_weight_medium: f64 = 0.23;
+pub const font_weight_semibold: f64 = 0.3;
+pub const font_weight_bold: f64 = 0.4;
+
+/// Text alignment constants.
+pub const text_alignment_left: rt.NSInteger = 0;
+pub const text_alignment_right: rt.NSInteger = 1;
+pub const text_alignment_center: rt.NSInteger = 2;
+
 /// Returns the singleton `NSApplication` instance.
 pub fn sharedApplication() rt.Id {
     return rt.msg(rt.class("NSApplication"), "sharedApplication");

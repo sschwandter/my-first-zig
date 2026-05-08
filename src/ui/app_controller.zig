@@ -5,7 +5,7 @@
 //! actions such as create, delete, select, and save.
 
 const std = @import("std");
-
+const appkit = @import("../cocoa/appkit.zig");
 const foundation = @import("../cocoa/foundation.zig");
 const rt = @import("../cocoa/runtime.zig");
 const Note = @import("../notes/note.zig").Note;
@@ -265,6 +265,47 @@ pub fn numberOfRowsInTableView(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) rt.NS
 pub fn tableObjectValue(_: rt.Id, _: rt.Sel, _: rt.Id, _: rt.Id, row: rt.NSInteger) callconv(.c) rt.Id {
     const controller = current() orelse return foundation.nsString("");
     return controller.titleForRow(row);
+}
+
+/// Objective-C delegate trampoline returning a view for one sidebar row.
+pub fn tableObjectValueView(_: rt.Id, _: rt.Sel, table: rt.Id, column: rt.Id, row: rt.NSInteger) callconv(.c) rt.Id {
+    const controller = current() orelse return rt.nil;
+    const identifier = rt.msg(column, "identifier");
+    var view = rt.msgIdId(table, "makeViewWithIdentifier:owner:", identifier, controller.delegate orelse rt.nil);
+
+    if (view == rt.nil) {
+        const table_width = rt.msgRect(table, "bounds").size.width;
+        view = rt.msgRectArg(rt.msg(rt.class("NSTableCellView"), "alloc"), "initWithFrame:", .{
+            .origin = .{ .x = 0, .y = 0 },
+            .size = .{ .width = table_width, .height = 42 },
+        });
+        rt.msgVoidId(view, "setIdentifier:", identifier);
+
+        // Sidebar title field: 14pt Medium font, 20pt padding, tail truncation.
+        const text_field = rt.msgRectArg(rt.msg(rt.class("NSTextField"), "alloc"), "initWithFrame:", .{
+            .origin = .{ .x = 20, .y = 10.5 }, // Moved down to balance perceived centering
+            .size = .{ .width = table_width - 40, .height = 24 },
+        });
+        rt.msgVoidBool(text_field, "setBezeled:", false);
+        rt.msgVoidBool(text_field, "setDrawsBackground:", false);
+        rt.msgVoidBool(text_field, "setEditable:", true);
+        rt.msgVoidBool(text_field, "setSelectable:", true);
+        rt.msgVoidId(text_field, "setFont:", foundation.systemFontWeight(14, appkit.font_weight_medium));
+        rt.msgVoidId(text_field, "setTextColor:", rt.msg(rt.class("NSColor"), "labelColor"));
+        rt.msgVoidUInteger(text_field, "setAutoresizingMask:", appkit.view_width_sizable);
+
+        // Enable ellipsis for long titles
+        const cell = rt.msg(text_field, "cell");
+        rt.msgVoidInteger(cell, "setLineBreakMode:", 4); // NSLineBreakByTruncatingTail
+
+        rt.msgVoidId(view, "addSubview:", text_field);
+        rt.msgVoidId(view, "setTextField:", text_field);
+    }
+
+    const text_field = rt.msg(view, "textField");
+    rt.msgVoidId(text_field, "setStringValue:", controller.titleForRow(row));
+
+    return view;
 }
 
 /// Objective-C data-source trampoline for sidebar title edits.
