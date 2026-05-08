@@ -11,6 +11,7 @@ const rt = @import("../cocoa/runtime.zig");
 
 const new_note_identifier = "zig-notes-new-note";
 const delete_note_identifier = "zig-notes-delete-note";
+const toggle_sidebar_identifier = "zig-notes-toggle-sidebar";
 
 /// Creates and attaches the main window toolbar.
 pub fn attach(window: rt.Id, delegate: rt.Id) void {
@@ -25,6 +26,8 @@ pub fn attach(window: rt.Id, delegate: rt.Id) void {
 /// Returns the toolbar identifiers that Zig Notes supports.
 pub fn itemIdentifiers() rt.Id {
     const identifiers = rt.msg(rt.class("NSMutableArray"), "new");
+    rt.msgVoidId(identifiers, "addObject:", foundation.nsString(toggle_sidebar_identifier));
+    rt.msgVoidId(identifiers, "addObject:", foundation.nsString("NSToolbarFlexibleSpaceItem"));
     rt.msgVoidId(identifiers, "addObject:", foundation.nsString(new_note_identifier));
     rt.msgVoidId(identifiers, "addObject:", foundation.nsString(delete_note_identifier));
     return identifiers;
@@ -33,6 +36,15 @@ pub fn itemIdentifiers() rt.Id {
 /// Builds a configured `NSToolbarItem` for an identifier requested by AppKit.
 pub fn itemForIdentifier(delegate: rt.Id, item_identifier: rt.Id) rt.Id {
     const identifier = std.mem.span(foundation.utf8String(item_identifier));
+    if (std.mem.eql(u8, identifier, toggle_sidebar_identifier)) {
+        return toolbarItem(item_identifier, delegate, .{
+            .label = "Sidebar",
+            .palette_label = "Toggle Sidebar",
+            .tool_tip = "Hide or show the notes list",
+            .symbol = "sidebar.left",
+            .action = "toggleSidebar:",
+        });
+    }
     if (std.mem.eql(u8, identifier, new_note_identifier)) {
         return toolbarItem(item_identifier, delegate, .{
             .label = "New",

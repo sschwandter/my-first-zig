@@ -21,6 +21,7 @@ pub const ToolbarItemCallback = *const fn (rt.Id, rt.Sel, rt.Id, rt.Id, bool) ca
 pub const Callbacks = struct {
     new_note: ActionCallback,
     delete_note: ActionCallback,
+    toggle_sidebar: ActionCallback,
     number_of_rows: NumberRowsCallback,
     object_value: ObjectValueCallback,
     selection_did_change: ActionCallback,
@@ -37,6 +38,7 @@ pub fn register(callbacks: Callbacks) void {
     const cls = rt.allocateClassPair(rt.getClass("NSObject"), "ZigNotesDelegate");
     _ = rt.addMethod(cls, "newNote:", @ptrCast(callbacks.new_note), "v@:@");
     _ = rt.addMethod(cls, "deleteNote:", @ptrCast(callbacks.delete_note), "v@:@");
+    _ = rt.addMethod(cls, "toggleSidebar:", @ptrCast(callbacks.toggle_sidebar), "v@:@");
     _ = rt.addMethod(cls, "numberOfRowsInTableView:", @ptrCast(callbacks.number_of_rows), "q@:@");
     _ = rt.addMethod(cls, "tableView:objectValueForTableColumn:row:", @ptrCast(callbacks.object_value), "@@:@@q");
     _ = rt.addMethod(cls, "tableViewSelectionDidChange:", @ptrCast(callbacks.selection_did_change), "v@:@");

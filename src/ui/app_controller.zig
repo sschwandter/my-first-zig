@@ -22,6 +22,7 @@ pub const AppController = struct {
     selected_index: ?usize = null,
     table_view: ?rt.Id = null,
     text_view: ?rt.Id = null,
+    split_view: ?rt.Id = null,
     delegate: ?rt.Id = null,
     suppress_text_change: bool = false,
 
@@ -45,9 +46,10 @@ pub const AppController = struct {
     }
 
     /// Attaches the AppKit views the controller must refresh or read from.
-    pub fn setViews(self: *AppController, table_view: rt.Id, text_view: rt.Id) void {
+    pub fn setViews(self: *AppController, table_view: rt.Id, text_view: rt.Id, split_view: rt.Id) void {
         self.table_view = table_view;
         self.text_view = text_view;
+        self.split_view = split_view;
     }
 
     /// Creates a new empty note using the first available numbered title.
@@ -195,6 +197,18 @@ pub fn newNoteAction(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
 /// Objective-C action trampoline for `File > Delete Note`.
 pub fn deleteNoteAction(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     if (current()) |controller| controller.deleteSelectedNote();
+}
+
+/// Objective-C action trampoline for toolbar sidebar toggle.
+pub fn toggleSidebarAction(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
+    const controller = current() orelse return;
+    const split = controller.split_view orelse return;
+    const subviews = rt.msg(split, "subviews");
+    const sidebar = rt.msgUInteger(subviews, "objectAtIndex:", 0);
+
+    const is_hidden = rt.msgBool(sidebar, "isHidden");
+    rt.msgVoidBool(sidebar, "setHidden:", !is_hidden);
+    rt.msgVoid(split, "adjustSubviews");
 }
 
 /// Objective-C data-source trampoline returning the sidebar row count.

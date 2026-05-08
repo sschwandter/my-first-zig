@@ -14,10 +14,18 @@ pub const NotesSidebar = struct {
 
 /// Creates a sidebar table and connects its data source and delegate.
 pub fn build(frame: rt.NSRect, delegate: rt.Id) NotesSidebar {
+    const visual_effect = rt.msgRectArg(rt.msg(rt.class("NSVisualEffectView"), "alloc"), "initWithFrame:", frame);
+    rt.msgVoidInteger(visual_effect, "setMaterial:", appkit.visual_effect_material_sidebar);
+    rt.msgVoidInteger(visual_effect, "setBlendingMode:", appkit.visual_effect_blending_mode_behind_window);
+    rt.msgVoidInteger(visual_effect, "setState:", appkit.visual_effect_state_follows_window);
+    rt.msgVoidUInteger(visual_effect, "setAutoresizingMask:", appkit.view_height_sizable);
+
     const scroll = rt.msgRectArg(rt.msg(rt.class("NSScrollView"), "alloc"), "initWithFrame:", frame);
     rt.msgVoidBool(scroll, "setHasVerticalScroller:", true);
     rt.msgVoidInteger(scroll, "setBorderType:", appkit.no_border);
-    rt.msgVoidUInteger(scroll, "setAutoresizingMask:", appkit.view_height_sizable);
+    rt.msgVoidUInteger(scroll, "setAutoresizingMask:", appkit.view_width_sizable | appkit.view_height_sizable);
+    rt.msgVoidId(scroll, "setBackgroundColor:", rt.msg(rt.class("NSColor"), "clearColor"));
+    rt.msgVoidBool(scroll, "setDrawsBackground:", false);
 
     const table = rt.msgRectArg(rt.msg(rt.class("NSTableView"), "alloc"), "initWithFrame:", frame);
     const column = rt.msgId(rt.msg(rt.class("NSTableColumn"), "alloc"), "initWithIdentifier:", foundation.nsString("notes"));
@@ -32,8 +40,9 @@ pub fn build(frame: rt.NSRect, delegate: rt.Id) NotesSidebar {
     rt.msgVoidUInteger(table, "setGridStyleMask:", 0);
     rt.msgVoidInteger(table, "setSelectionHighlightStyle:", appkit.table_selection_highlight_style_source_list);
     rt.msgVoidInteger(table, "setStyle:", appkit.table_style_source_list);
-    rt.msgVoidId(table, "setBackgroundColor:", rt.msg(rt.class("NSColor"), "controlBackgroundColor"));
+    rt.msgVoidId(table, "setBackgroundColor:", rt.msg(rt.class("NSColor"), "clearColor"));
     rt.msgVoidId(scroll, "setDocumentView:", table);
+    rt.msgVoidId(visual_effect, "addSubview:", scroll);
 
-    return .{ .scroll_view = scroll, .table_view = table };
+    return .{ .scroll_view = visual_effect, .table_view = table };
 }

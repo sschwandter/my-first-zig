@@ -42,6 +42,8 @@ const MsgIdRect = *const fn (Id, Sel, NSRect) callconv(.c) Id;
 const MsgIdSelId = *const fn (Id, Sel, Id, Sel, Id) callconv(.c) Id;
 const MsgIdDouble = *const fn (Id, Sel, f64) callconv(.c) Id;
 const MsgIdUInteger = *const fn (Id, Sel, NSUInteger) callconv(.c) Id;
+const MsgBool = *const fn (Id, Sel) callconv(.c) bool;
+const MsgBoolId = *const fn (Id, Sel, Id) callconv(.c) bool;
 const MsgInteger = *const fn (Id, Sel) callconv(.c) NSInteger;
 const MsgRect = *const fn (Id, Sel) callconv(.c) NSRect;
 const MsgCStringReturn = *const fn (Id, Sel) callconv(.c) [*:0]const u8;
@@ -66,6 +68,8 @@ const objc_msgSend_id_rect = @extern(MsgIdRect, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_sel_id = @extern(MsgIdSelId, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_double = @extern(MsgIdDouble, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_uinteger = @extern(MsgIdUInteger, .{ .name = "objc_msgSend" });
+const objc_msgSend_bool = @extern(MsgBool, .{ .name = "objc_msgSend" });
+const objc_msgSend_bool_id = @extern(MsgBoolId, .{ .name = "objc_msgSend" });
 const objc_msgSend_integer = @extern(MsgInteger, .{ .name = "objc_msgSend" });
 const objc_msgSend_rect = @extern(MsgRect, .{ .name = "objc_msgSend" });
 const objc_msgSend_cstring_return = @extern(MsgCStringReturn, .{ .name = "objc_msgSend" });
@@ -155,6 +159,16 @@ pub fn msgRectArg(receiver: Id, sel: [:0]const u8, arg: NSRect) Id {
 /// Sends an `NSUInteger` argument returning an object.
 pub fn msgUInteger(receiver: Id, sel: [:0]const u8, arg: NSUInteger) Id {
     return objc_msgSend_id_uinteger(receiver, selector(sel), arg);
+}
+
+/// Sends a no-argument Objective-C message returning a boolean.
+pub fn msgBool(receiver: Id, sel: [:0]const u8) bool {
+    return objc_msgSend_bool(receiver, selector(sel));
+}
+
+/// Sends one object argument returning a boolean.
+pub fn msgBoolId(receiver: Id, sel: [:0]const u8, arg: Id) bool {
+    return objc_msgSend_bool_id(receiver, selector(sel), arg);
 }
 
 /// Sends a no-argument Objective-C message returning an `NSInteger`.

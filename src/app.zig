@@ -25,6 +25,7 @@ pub fn run(init: std.process.Init) !void {
     delegate_class.register(.{
         .new_note = controller_callbacks.newNoteAction,
         .delete_note = controller_callbacks.deleteNoteAction,
+        .toggle_sidebar = controller_callbacks.toggleSidebarAction,
         .number_of_rows = controller_callbacks.numberOfRowsInTableView,
         .object_value = controller_callbacks.tableObjectValue,
         .selection_did_change = controller_callbacks.tableSelectionDidChange,

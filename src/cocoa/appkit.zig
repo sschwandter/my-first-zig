@@ -18,21 +18,42 @@ pub const window_style_closable: rt.NSUInteger = 1 << 1;
 pub const window_style_miniaturizable: rt.NSUInteger = 1 << 2;
 /// Window style bit for user resizing.
 pub const window_style_resizable: rt.NSUInteger = 1 << 3;
+/// Window style bit allowing the content view to expand into the title bar area.
+pub const window_style_full_size_content_view: rt.NSUInteger = 1 << 15;
 
 /// Autoresizing mask bit allowing width changes with the parent view.
 pub const view_width_sizable: rt.NSUInteger = 1 << 1;
 /// Autoresizing mask bit allowing height changes with the parent view.
 pub const view_height_sizable: rt.NSUInteger = 1 << 4;
+
 /// Border type for views that should visually merge with the window.
 pub const no_border: rt.NSInteger = 0;
+
 /// Toolbar display mode showing both SF Symbol icons and labels.
 pub const toolbar_display_mode_icon_and_label: rt.NSInteger = 1;
+
 /// Unified window toolbar style used by modern document-style apps.
 pub const window_toolbar_style_unified: rt.NSInteger = 1;
+/// Compact unified window toolbar style.
+pub const window_toolbar_style_unified_compact: rt.NSInteger = 2;
+
+/// Title visibility state that hides the window title while keeping it in menus.
+pub const window_title_visibility_hidden: rt.NSInteger = 1;
+
 /// Source-list table style for sidebar-like lists.
 pub const table_style_source_list: rt.NSInteger = 1;
 /// Source-list selection highlight style for sidebar rows.
 pub const table_selection_highlight_style_source_list: rt.NSInteger = 1;
+
+/// Sidebar visual effect material for translucent backgrounds.
+pub const visual_effect_material_sidebar: rt.NSInteger = 3;
+/// Behind-window blending mode for visual effect views.
+pub const visual_effect_blending_mode_behind_window: rt.NSInteger = 0;
+/// Visual effect state that follows the window's active/inactive state.
+pub const visual_effect_state_follows_window: rt.NSInteger = 0;
+
+/// Thin divider style for split views.
+pub const split_view_divider_style_thin: rt.NSInteger = 2;
 
 /// Returns the singleton `NSApplication` instance.
 pub fn sharedApplication() rt.Id {
