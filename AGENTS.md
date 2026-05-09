@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+For technical implementation patterns, Zig 0.16.0 idioms, and Cocoa bridge shims, see [KNOWLEDGE.md](./KNOWLEDGE.md).
+
 ## Project Structure & Module Organization
 
 This repository contains a native macOS AppKit notes app written in Zig.
