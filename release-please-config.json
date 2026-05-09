@@ -1,0 +1,16 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "zig-notes",
+      "extra-files": [
+        {
+          "type": "regex",
+          "path": "build.zig.zon",
+          "regex": "(\\.version\\s*=\\s*\")([^\"]+)(\",)",
+          "replacement": "$1{{version}}$3"
+        }
+      ]
+    }
+  }
+}

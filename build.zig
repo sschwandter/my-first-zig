@@ -11,8 +11,16 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    // Here we define an executable. An executable needs to have a root module
-    // which needs to expose a `main` function.
+    // Extract version from build.zig.zon as the single source of truth.
+    const version_str = v: {
+        const zon_text = @embedFile("build.zig.zon");
+        const needle = ".version = \"";
+        const start = std.mem.indexOf(u8, zon_text, needle).? + needle.len;
+        const end = std.mem.indexOfPos(u8, zon_text, start, "\"").?;
+        break :v zon_text[start..end];
+    };
+
+    // Here we define an executable.
     const exe = b.addExecutable(.{
         .name = "my_first_zig",
         .root_module = b.createModule(.{
@@ -29,13 +37,17 @@ pub fn build(b: *std.Build) void {
     const app_name = "Zig Notes";
     const app_bundle_path = app_name ++ ".app";
 
+    const info_plist_content = b.fmt(@embedFile("resources/Info.plist.in"), .{ app_name, app_name, version_str });
+
+    const write_plist = b.addWriteFile("Info.plist", info_plist_content);
+
     // Install a minimal macOS app bundle so the result is recognizable from Finder.
     const install_app_exe = b.addInstallArtifact(exe, .{
         .dest_dir = .{ .override = .{ .custom = app_bundle_path ++ "/Contents/MacOS" } },
         .dest_sub_path = app_name,
     });
     b.getInstallStep().dependOn(&install_app_exe.step);
-    b.installFile("resources/Info.plist", app_bundle_path ++ "/Contents/Info.plist");
+    b.getInstallStep().dependOn(&b.addInstallFile(write_plist.getDirectory().path(b, "Info.plist"), app_bundle_path ++ "/Contents/Info.plist").step);
 
     // Top level "run" step.
     const run_step = b.step("run", "Run the app");
