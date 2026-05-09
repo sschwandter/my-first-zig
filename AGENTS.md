@@ -9,7 +9,6 @@ This repository contains a native macOS AppKit notes app written in Zig.
 - `src/cocoa/`: Objective-C runtime, Foundation, AppKit, and delegate bridge helpers.
 - `src/notes/`: pure Zig note model, title/filename rules, and file-backed storage.
 - `src/ui/`: AppKit UI construction and `AppController` behavior.
-- `src/root.zig`: small reusable/testable package module.
 - `resources/Info.plist`: macOS app bundle metadata.
 - `build.zig`: build graph, framework linking, run/test steps, and `.app` bundle install.
 
