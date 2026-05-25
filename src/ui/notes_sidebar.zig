@@ -12,11 +12,27 @@ pub const NotesSidebar = struct {
     table_view: rt.Id,
 };
 
+/// Creates the sidebar background using the best material available on this macOS version.
+fn buildSidebarBackground(frame: rt.NSRect) rt.Id {
+    if (rt.maybeClass("NSGlassEffectView")) |glass_class| {
+        const glass_class_id: rt.Id = @ptrCast(glass_class);
+        const glass_view = rt.msgRectArg(rt.msg(glass_class_id, "alloc"), "initWithFrame:", frame);
+        rt.msgVoidInteger(glass_view, "setStyle:", 0); // NSGlassEffectViewStyleRegular
+        rt.msgVoidUInteger(glass_view, "setAutoresizingMask:", appkit.view_height_sizable);
+        return glass_view;
+    }
+
+    const effect_view = rt.msgRectArg(rt.msg(rt.class("NSVisualEffectView"), "alloc"), "initWithFrame:", frame);
+    rt.msgVoidInteger(effect_view, "setMaterial:", appkit.visual_effect_material_sidebar);
+    rt.msgVoidInteger(effect_view, "setBlendingMode:", appkit.visual_effect_blending_mode_behind_window);
+    rt.msgVoidInteger(effect_view, "setState:", appkit.visual_effect_state_follows_window);
+    rt.msgVoidUInteger(effect_view, "setAutoresizingMask:", appkit.view_height_sizable);
+    return effect_view;
+}
+
 /// Creates a sidebar table and connects its data source and delegate.
 pub fn build(frame: rt.NSRect, delegate: rt.Id) NotesSidebar {
-    const glass_view = rt.msgRectArg(rt.msg(rt.class("NSGlassEffectView"), "alloc"), "initWithFrame:", frame);
-    rt.msgVoidInteger(glass_view, "setStyle:", 0); // NSGlassEffectViewStyleRegular
-    rt.msgVoidUInteger(glass_view, "setAutoresizingMask:", appkit.view_height_sizable);
+    const background_view = buildSidebarBackground(frame);
 
     const scroll = rt.msgRectArg(rt.msg(rt.class("NSScrollView"), "alloc"), "initWithFrame:", frame);
     rt.msgVoidBool(scroll, "setHasVerticalScroller:", true);
@@ -41,7 +57,7 @@ pub fn build(frame: rt.NSRect, delegate: rt.Id) NotesSidebar {
     rt.msgVoidInteger(table, "setStyle:", appkit.table_style_source_list);
     rt.msgVoidId(table, "setBackgroundColor:", rt.msg(rt.class("NSColor"), "clearColor"));
     rt.msgVoidId(scroll, "setDocumentView:", table);
-    rt.msgVoidId(glass_view, "addSubview:", scroll);
+    rt.msgVoidId(background_view, "addSubview:", scroll);
 
-    return .{ .scroll_view = glass_view, .table_view = table };
+    return .{ .scroll_view = background_view, .table_view = table };
 }

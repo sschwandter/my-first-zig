@@ -24,6 +24,9 @@ Naming follow a strict `msg[Return][Arg1][Arg2]...` convention to maintain type 
 - `msgIdId`: Sends one `Id`, returns an `Id` (object).
 - `msgDoubleDouble`: Sends two `f64`, returns an `Id` (object).
 
+### Sidebar Background
+Use `NSGlassEffectView` when the class is available at runtime (`rt.maybeClass`), otherwise fall back to `NSVisualEffectView` with `visual_effect_material_sidebar`. This keeps `LSMinimumSystemVersion` at 13.0 while still using glass on newer macOS releases.
+
 ### View-Based Tables
 Prefer **view-based** `NSTableView` over cell-based.
 - Register `tableView:viewForTableColumn:row:` in `delegate.zig`.
