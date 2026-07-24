@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/sschwandter/my-first-zig/compare/zig-notes-v0.2.0...zig-notes-v0.3.0) (2026-07-24)
+
+
+### Features
+
+* inline title editing for new notes; fix sidebar layout and renames ([715a51f](https://github.com/sschwandter/my-first-zig/commit/715a51f1767ee50f315508db39295aca23c3fdeb))
+
 ## [0.2.0](https://github.com/sschwandter/my-first-zig/compare/zig-notes-v0.1.0...zig-notes-v0.2.0) (2026-05-25)
 
 
