@@ -27,6 +27,13 @@ pub fn build(app: rt.Id, delegate: rt.Id) void {
     rt.msgVoidIdId(menubar, "setSubmenu:forItem:", file_menu, file_menu_item);
     _ = menuItem(file_menu, "New Note", "newNote:", "n", delegate);
     _ = menuItem(file_menu, "Delete Note", "deleteNote:", "", delegate);
+
+    const view_menu_item = appkit.allocInit("NSMenuItem");
+    rt.msgVoidId(menubar, "addItem:", view_menu_item);
+    const view_menu = initMenu("View");
+    rt.msgVoidIdId(menubar, "setSubmenu:forItem:", view_menu, view_menu_item);
+    const toggle_item = menuItem(view_menu, "Toggle Sidebar", "toggleSidebar:", "s", delegate);
+    rt.msgVoidUInteger(toggle_item, "setKeyEquivalentModifierMask:", appkit.modifier_flag_control | appkit.modifier_flag_command);
 }
 
 fn initMenu(title: [:0]const u8) rt.Id {

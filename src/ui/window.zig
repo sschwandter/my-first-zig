@@ -18,7 +18,7 @@ pub fn build(controller: *AppController, delegate: rt.Id) void {
         appkit.window_style_miniaturizable |
         appkit.window_style_resizable |
         appkit.window_style_full_size_content_view;
-    const sidebar_width = 260;
+    const sidebar_width = @import("app_controller.zig").sidebar_width;
     const frame = rt.NSRect{ .origin = .{ .x = 0, .y = 0 }, .size = .{ .width = 980, .height = 660 } };
 
     const window = rt.msgWindowInit(
@@ -53,6 +53,7 @@ pub fn build(controller: *AppController, delegate: rt.Id) void {
 
     rt.msgVoidId(split_view, "addSubview:", sidebar.scroll_view);
     rt.msgVoidId(split_view, "addSubview:", note_editor.scroll_view);
+    rt.msgVoidId(split_view, "setDelegate:", delegate);
     rt.msgVoidDoubleInteger(split_view, "setPosition:ofDividerAtIndex:", sidebar_width, 0);
     rt.msgVoidId(content_view, "addSubview:", split_view);
     rt.msgVoidId(window, "makeKeyAndOrderFront:", window);

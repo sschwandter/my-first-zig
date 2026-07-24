@@ -21,6 +21,11 @@ pub const window_style_resizable: rt.NSUInteger = 1 << 3;
 /// Window style bit allowing the content view to expand into the title bar area.
 pub const window_style_full_size_content_view: rt.NSUInteger = 1 << 15;
 
+/// `NSEventModifierFlagControl` for menu key equivalents.
+pub const modifier_flag_control: rt.NSUInteger = 1 << 18;
+/// `NSEventModifierFlagCommand` for menu key equivalents.
+pub const modifier_flag_command: rt.NSUInteger = 1 << 20;
+
 /// Autoresizing mask bit allowing width changes with the parent view.
 pub const view_width_sizable: rt.NSUInteger = 1 << 1;
 /// Autoresizing mask bit allowing height changes with the parent view.
@@ -38,8 +43,8 @@ pub const window_toolbar_style_unified: rt.NSInteger = 1;
 /// Title visibility state that hides the window title while keeping it in menus.
 pub const window_title_visibility_hidden: rt.NSInteger = 1;
 
-/// Source-list table style for sidebar-like lists.
-pub const table_style_source_list: rt.NSInteger = 1;
+/// Source-list table style for sidebar-like lists (`NSTableViewStyleSourceList`).
+pub const table_style_source_list: rt.NSInteger = 3;
 /// Source-list selection highlight style for sidebar rows.
 pub const table_selection_highlight_style_source_list: rt.NSInteger = 1;
 

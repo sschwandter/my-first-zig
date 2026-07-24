@@ -72,7 +72,10 @@ pub const AppController = struct {
             try self.notes.append(self.allocator, .{ .title = title, .filename = filename });
             note.sortByTitle(self.notes.items);
             self.reloadSidebar();
-            if (self.indexOfTitle(title)) |index| self.selectNote(index);
+            if (self.indexOfTitle(title)) |index| {
+                self.selectNote(index);
+                self.beginEditingTitle(index);
+            }
             return;
         }
     }
@@ -204,6 +207,14 @@ pub const AppController = struct {
         if (self.table_view) |table| rt.msgVoid(table, "reloadData");
     }
 
+    /// Starts inline editing of a note's title in the sidebar.
+    fn beginEditingTitle(self: *AppController, index: usize) void {
+        const table = self.table_view orelse return;
+        const win = rt.msg(table, "window");
+        if (win != rt.nil) _ = rt.msgBoolId(win, "makeFirstResponder:", table);
+        rt.msgVoidIntegerIntegerIdBool(table, "editColumn:row:withEvent:select:", 0, @intCast(index), rt.nil, true);
+    }
+
     fn indexOfFilename(self: *AppController, filename: []const u8) ?usize {
         for (self.notes.items, 0..) |item, i| {
             if (std.mem.eql(u8, item.filename, filename)) return i;
@@ -243,16 +254,25 @@ pub fn deleteNoteAction(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     if (current()) |controller| controller.deleteSelectedNote();
 }
 
-/// Objective-C action trampoline for toolbar sidebar toggle.
+/// Objective-C action trampoline for the sidebar toggle (toolbar button and View menu).
 pub fn toggleSidebarAction(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     const controller = current() orelse return;
     const split = controller.split_view orelse return;
     const subviews = rt.msg(split, "subviews");
     const sidebar = rt.msgUInteger(subviews, "objectAtIndex:", 0);
 
-    const is_hidden = rt.msgBool(sidebar, "isHidden");
-    rt.msgVoidBool(sidebar, "setHidden:", !is_hidden);
-    rt.msgVoid(split, "adjustSubviews");
+    // setPosition:ofDividerAtIndex: is the only way to update the split view's
+    // internal divider state (setFrame: gets re-tiled away on the next layout
+    // pass), and it runs the delegate hooks, so those go permissive meanwhile.
+    sidebar_toggling = true;
+    defer sidebar_toggling = false;
+    if (rt.msgBool(sidebar, "isHidden")) {
+        rt.msgVoidBool(sidebar, "setHidden:", false);
+        rt.msgVoidDoubleInteger(split, "setPosition:ofDividerAtIndex:", sidebar_width, 0);
+    } else {
+        rt.msgVoidDoubleInteger(split, "setPosition:ofDividerAtIndex:", 0, 0);
+        rt.msgVoidBool(sidebar, "setHidden:", true);
+    }
 }
 
 /// Objective-C data-source trampoline returning the sidebar row count.
@@ -287,6 +307,9 @@ pub fn tableObjectValueView(_: rt.Id, _: rt.Sel, table: rt.Id, column: rt.Id, ro
         rt.msgVoidId(text_field, "setFont:", foundation.systemFontWeight(14, appkit.font_weight_medium));
         rt.msgVoidId(text_field, "setTextColor:", rt.msg(rt.class("NSColor"), "labelColor"));
         rt.msgVoidUInteger(text_field, "setAutoresizingMask:", appkit.view_width_sizable);
+        // View-based tables never call setObjectValue:, so commit edits via target/action.
+        rt.msgVoidId(text_field, "setTarget:", controller.delegate orelse rt.nil);
+        rt.msgVoidSel(text_field, "setAction:", rt.selector("titleEdited:"));
 
         // Enable ellipsis for long titles
         const cell = rt.msg(text_field, "cell");
@@ -302,9 +325,13 @@ pub fn tableObjectValueView(_: rt.Id, _: rt.Sel, table: rt.Id, column: rt.Id, ro
     return view;
 }
 
-/// Objective-C data-source trampoline for sidebar title edits.
-pub fn tableSetObjectValue(_: rt.Id, _: rt.Sel, _: rt.Id, object_value: rt.Id, _: rt.Id, row: rt.NSInteger) callconv(.c) void {
-    if (current()) |controller| controller.updateNoteTitle(row, object_value);
+/// Objective-C action trampoline fired when a sidebar title text field ends editing.
+pub fn titleEditedAction(_: rt.Id, _: rt.Sel, sender: rt.Id) callconv(.c) void {
+    const controller = current() orelse return;
+    const table = controller.table_view orelse return;
+    const row = rt.msgIntegerId(table, "rowForView:", sender);
+    if (row < 0) return;
+    controller.updateNoteTitle(row, rt.msg(sender, "stringValue"));
 }
 
 /// Objective-C delegate trampoline for sidebar selection changes.
@@ -315,6 +342,48 @@ pub fn tableSelectionDidChange(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void 
 /// Objective-C delegate trampoline for editor text changes.
 pub fn textDidChange(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     if (current()) |controller| controller.saveSelectedNote();
+}
+
+/// Standard sidebar width at launch and after re-showing it.
+pub const sidebar_width: f64 = 260;
+/// Minimum sidebar width when dragging the split view divider.
+pub const sidebar_min_width: f64 = 180;
+/// Maximum sidebar width when dragging the split view divider.
+pub const sidebar_max_width: f64 = 400;
+
+/// True while the sidebar toggle moves the divider programmatically.
+var sidebar_toggling: bool = false;
+
+fn sidebarPane(split: rt.Id) rt.Id {
+    const subviews = rt.msg(split, "subviews");
+    return rt.msgUInteger(subviews, "objectAtIndex:", 0);
+}
+
+/// Objective-C delegate trampoline clamping the divider's minimum position.
+/// `setPosition:ofDividerAtIndex:` is also constrained, so pass hidden-sidebar moves through.
+pub fn splitViewConstrainMin(_: rt.Id, _: rt.Sel, split: rt.Id, proposed: f64, _: rt.NSInteger) callconv(.c) f64 {
+    if (sidebar_toggling or rt.msgBool(sidebarPane(split), "isHidden")) return proposed;
+    return @max(proposed, sidebar_min_width);
+}
+
+/// Objective-C delegate trampoline clamping the divider's maximum position.
+pub fn splitViewConstrainMax(_: rt.Id, _: rt.Sel, split: rt.Id, proposed: f64, _: rt.NSInteger) callconv(.c) f64 {
+    if (sidebar_toggling or rt.msgBool(sidebarPane(split), "isHidden")) return proposed;
+    return @min(proposed, sidebar_max_width);
+}
+
+/// Objective-C delegate trampoline hiding the divider while the sidebar is hidden.
+pub fn splitViewShouldHideDivider(_: rt.Id, _: rt.Sel, split: rt.Id, _: rt.NSInteger) callconv(.c) bool {
+    return rt.msgBool(sidebarPane(split), "isHidden");
+}
+
+/// Objective-C delegate trampoline keeping the sidebar fixed while the editor flexes on resize.
+/// A hidden sidebar must stay adjustable so the split view can reclaim its space.
+pub fn splitViewShouldAdjustSubview(_: rt.Id, _: rt.Sel, split: rt.Id, view: rt.Id) callconv(.c) bool {
+    if (sidebar_toggling) return true;
+    const sidebar = sidebarPane(split);
+    if (view != sidebar) return true;
+    return rt.msgBool(sidebar, "isHidden");
 }
 
 /// Objective-C toolbar delegate trampoline for both the allowed and default identifier lists.
