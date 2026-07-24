@@ -10,8 +10,6 @@ const rt = @import("runtime.zig");
 pub const ActionCallback = *const fn (rt.Id, rt.Sel, rt.Id) callconv(.c) void;
 /// Callback shape for `numberOfRowsInTableView:`.
 pub const NumberRowsCallback = *const fn (rt.Id, rt.Sel, rt.Id) callconv(.c) rt.NSInteger;
-/// Callback shape for `tableView:objectValueForTableColumn:row:`.
-pub const ObjectValueCallback = *const fn (rt.Id, rt.Sel, rt.Id, rt.Id, rt.NSInteger) callconv(.c) rt.Id;
 /// Callback shape for `tableView:viewForTableColumn:row:`.
 pub const TableViewViewCallback = *const fn (rt.Id, rt.Sel, rt.Id, rt.Id, rt.NSInteger) callconv(.c) rt.Id;
 /// Callback shape for `tableView:setObjectValue:forTableColumn:row:`.
@@ -27,13 +25,11 @@ pub const Callbacks = struct {
     delete_note: ActionCallback,
     toggle_sidebar: ActionCallback,
     number_of_rows: NumberRowsCallback,
-    object_value: ObjectValueCallback,
     view_for_column: TableViewViewCallback,
     set_object_value: SetObjectValueCallback,
     selection_did_change: ActionCallback,
     text_did_change: ActionCallback,
-    toolbar_allowed_identifiers: ToolbarIdentifiersCallback,
-    toolbar_default_identifiers: ToolbarIdentifiersCallback,
+    toolbar_identifiers: ToolbarIdentifiersCallback,
     toolbar_item: ToolbarItemCallback,
 };
 
@@ -46,13 +42,12 @@ pub fn register(callbacks: Callbacks) void {
     _ = rt.addMethod(cls, "deleteNote:", @ptrCast(callbacks.delete_note), "v@:@");
     _ = rt.addMethod(cls, "toggleSidebar:", @ptrCast(callbacks.toggle_sidebar), "v@:@");
     _ = rt.addMethod(cls, "numberOfRowsInTableView:", @ptrCast(callbacks.number_of_rows), "q@:@");
-    _ = rt.addMethod(cls, "tableView:objectValueForTableColumn:row:", @ptrCast(callbacks.object_value), "@@:@@q");
     _ = rt.addMethod(cls, "tableView:viewForTableColumn:row:", @ptrCast(callbacks.view_for_column), "@@:@@q");
     _ = rt.addMethod(cls, "tableView:setObjectValue:forTableColumn:row:", @ptrCast(callbacks.set_object_value), "v@:@@@q");
     _ = rt.addMethod(cls, "tableViewSelectionDidChange:", @ptrCast(callbacks.selection_did_change), "v@:@");
     _ = rt.addMethod(cls, "textDidChange:", @ptrCast(callbacks.text_did_change), "v@:@");
-    _ = rt.addMethod(cls, "toolbarAllowedItemIdentifiers:", @ptrCast(callbacks.toolbar_allowed_identifiers), "@@:@");
-    _ = rt.addMethod(cls, "toolbarDefaultItemIdentifiers:", @ptrCast(callbacks.toolbar_default_identifiers), "@@:@");
+    _ = rt.addMethod(cls, "toolbarAllowedItemIdentifiers:", @ptrCast(callbacks.toolbar_identifiers), "@@:@");
+    _ = rt.addMethod(cls, "toolbarDefaultItemIdentifiers:", @ptrCast(callbacks.toolbar_identifiers), "@@:@");
     _ = rt.addMethod(cls, "toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:", @ptrCast(callbacks.toolbar_item), "@@:@@B");
     rt.registerClassPair(cls);
 }

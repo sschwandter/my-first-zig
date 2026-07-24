@@ -34,8 +34,6 @@ pub const toolbar_display_mode_icon_and_label: rt.NSInteger = 1;
 
 /// Unified window toolbar style used by modern document-style apps.
 pub const window_toolbar_style_unified: rt.NSInteger = 1;
-/// Compact unified window toolbar style.
-pub const window_toolbar_style_unified_compact: rt.NSInteger = 2;
 
 /// Title visibility state that hides the window title while keeping it in menus.
 pub const window_title_visibility_hidden: rt.NSInteger = 1;
@@ -47,12 +45,8 @@ pub const table_selection_highlight_style_source_list: rt.NSInteger = 1;
 
 /// Sidebar visual effect material for translucent backgrounds.
 pub const visual_effect_material_sidebar: rt.NSInteger = 3;
-/// Modern refractive glass material introduced in macOS 26.
-pub const visual_effect_material_glass: rt.NSInteger = 30;
 /// Behind-window blending mode for visual effect views.
 pub const visual_effect_blending_mode_behind_window: rt.NSInteger = 0;
-/// Within-window blending mode for visual effect views.
-pub const visual_effect_blending_mode_within_window: rt.NSInteger = 1;
 
 /// Visual effect state that follows the window's active/inactive state.
 pub const visual_effect_state_follows_window: rt.NSInteger = 0;
@@ -60,21 +54,11 @@ pub const visual_effect_state_follows_window: rt.NSInteger = 0;
 /// Thin divider style for split views.
 pub const split_view_divider_style_thin: rt.NSInteger = 2;
 
-/// Standard bezel style for buttons.
-pub const bezel_style_rounded: rt.NSInteger = 1;
 /// Modern glass bezel style for buttons.
 pub const bezel_style_glass: rt.NSInteger = 15;
 
-/// Font weight constants for system fonts.
-pub const font_weight_regular: f64 = 0;
+/// `NSFontWeightMedium` for system fonts.
 pub const font_weight_medium: f64 = 0.23;
-pub const font_weight_semibold: f64 = 0.3;
-pub const font_weight_bold: f64 = 0.4;
-
-/// Text alignment constants.
-pub const text_alignment_left: rt.NSInteger = 0;
-pub const text_alignment_right: rt.NSInteger = 1;
-pub const text_alignment_center: rt.NSInteger = 2;
 
 /// Returns the singleton `NSApplication` instance.
 pub fn sharedApplication() rt.Id {

@@ -261,12 +261,6 @@ pub fn numberOfRowsInTableView(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) rt.NS
     return controller.numberOfRows();
 }
 
-/// Objective-C data-source trampoline returning a note title for one sidebar row.
-pub fn tableObjectValue(_: rt.Id, _: rt.Sel, _: rt.Id, _: rt.Id, row: rt.NSInteger) callconv(.c) rt.Id {
-    const controller = current() orelse return foundation.nsString("");
-    return controller.titleForRow(row);
-}
-
 /// Objective-C delegate trampoline returning a view for one sidebar row.
 pub fn tableObjectValueView(_: rt.Id, _: rt.Sel, table: rt.Id, column: rt.Id, row: rt.NSInteger) callconv(.c) rt.Id {
     const controller = current() orelse return rt.nil;
@@ -323,13 +317,8 @@ pub fn textDidChange(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) void {
     if (current()) |controller| controller.saveSelectedNote();
 }
 
-/// Objective-C toolbar delegate trampoline returning all supported toolbar identifiers.
-pub fn toolbarAllowedItemIdentifiers(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) rt.Id {
-    return toolbar.itemIdentifiers();
-}
-
-/// Objective-C toolbar delegate trampoline returning the default toolbar identifiers.
-pub fn toolbarDefaultItemIdentifiers(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) rt.Id {
+/// Objective-C toolbar delegate trampoline for both the allowed and default identifier lists.
+pub fn toolbarItemIdentifiers(_: rt.Id, _: rt.Sel, _: rt.Id) callconv(.c) rt.Id {
     return toolbar.itemIdentifiers();
 }
 

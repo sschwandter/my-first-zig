@@ -109,10 +109,10 @@ test "NoteStore CRUD operations" {
     try std.testing.expectEqualStrings("Hello Zig!", renamed_content);
 
     // 4. Load
-    var notes = std.ArrayList(Note).init(allocator);
+    var notes: std.ArrayList(Note) = .empty;
     defer {
         for (notes.items) |n| n.deinit(allocator);
-        notes.deinit();
+        notes.deinit(allocator);
     }
     try store.load(allocator, &notes);
     try std.testing.expectEqual(@as(usize, 1), notes.items.len);

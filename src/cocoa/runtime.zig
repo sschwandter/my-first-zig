@@ -40,12 +40,10 @@ const MsgIdDouble = *const fn (Id, Sel, f64) callconv(.c) Id;
 const MsgIdDoubleDouble = *const fn (Id, Sel, f64, f64) callconv(.c) Id;
 const MsgIdUInteger = *const fn (Id, Sel, NSUInteger) callconv(.c) Id;
 const MsgIdIdId = *const fn (Id, Sel, Id, Id) callconv(.c) Id;
-const MsgIdIdNSInteger = *const fn (Id, Sel, Id, NSInteger) callconv(.c) Id;
 const MsgIdCString = *const fn (Id, Sel, [*:0]const u8) callconv(.c) Id;
 const MsgIdRect = *const fn (Id, Sel, NSRect) callconv(.c) Id;
 const MsgIdSelId = *const fn (Id, Sel, Id, Sel, Id) callconv(.c) Id;
 const MsgBool = *const fn (Id, Sel) callconv(.c) bool;
-const MsgBoolId = *const fn (Id, Sel, Id) callconv(.c) bool;
 const MsgInteger = *const fn (Id, Sel) callconv(.c) NSInteger;
 const MsgRect = *const fn (Id, Sel) callconv(.c) NSRect;
 const MsgCStringReturn = *const fn (Id, Sel) callconv(.c) [*:0]const u8;
@@ -56,7 +54,6 @@ const MsgVoidDoubleInteger = *const fn (Id, Sel, f64, NSInteger) callconv(.c) vo
 const MsgVoidId = *const fn (Id, Sel, Id) callconv(.c) void;
 const MsgVoidIdBool = *const fn (Id, Sel, Id, bool) callconv(.c) void;
 const MsgVoidIdId = *const fn (Id, Sel, Id, Id) callconv(.c) void;
-const MsgVoidIdNSInteger = *const fn (Id, Sel, Id, NSInteger) callconv(.c) void;
 const MsgVoidInteger = *const fn (Id, Sel, NSInteger) callconv(.c) void;
 const MsgVoidSel = *const fn (Id, Sel, Sel) callconv(.c) void;
 const MsgVoidSize = *const fn (Id, Sel, NSSize) callconv(.c) void;
@@ -66,7 +63,6 @@ const MsgWindowInit = *const fn (Id, Sel, NSRect, NSUInteger, NSUInteger, bool) 
 const objc_msgSend_id = @extern(MsgId, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_id = @extern(MsgIdId, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_id_id = @extern(MsgIdIdId, .{ .name = "objc_msgSend" });
-const objc_msgSend_id_id_integer = @extern(MsgIdIdNSInteger, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_cstring = @extern(MsgIdCString, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_rect = @extern(MsgIdRect, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_sel_id = @extern(MsgIdSelId, .{ .name = "objc_msgSend" });
@@ -74,7 +70,6 @@ const objc_msgSend_id_double = @extern(MsgIdDouble, .{ .name = "objc_msgSend" })
 const objc_msgSend_id_double_double = @extern(MsgIdDoubleDouble, .{ .name = "objc_msgSend" });
 const objc_msgSend_id_uinteger = @extern(MsgIdUInteger, .{ .name = "objc_msgSend" });
 const objc_msgSend_bool = @extern(MsgBool, .{ .name = "objc_msgSend" });
-const objc_msgSend_bool_id = @extern(MsgBoolId, .{ .name = "objc_msgSend" });
 const objc_msgSend_integer = @extern(MsgInteger, .{ .name = "objc_msgSend" });
 const objc_msgSend_rect = @extern(MsgRect, .{ .name = "objc_msgSend" });
 const objc_msgSend_cstring_return = @extern(MsgCStringReturn, .{ .name = "objc_msgSend" });
@@ -85,7 +80,6 @@ const objc_msgSend_void_double_integer = @extern(MsgVoidDoubleInteger, .{ .name 
 const objc_msgSend_void_id = @extern(MsgVoidId, .{ .name = "objc_msgSend" });
 const objc_msgSend_void_id_bool = @extern(MsgVoidIdBool, .{ .name = "objc_msgSend" });
 const objc_msgSend_void_id_id = @extern(MsgVoidIdId, .{ .name = "objc_msgSend" });
-const objc_msgSend_void_id_integer = @extern(MsgVoidIdNSInteger, .{ .name = "objc_msgSend" });
 const objc_msgSend_void_integer = @extern(MsgVoidInteger, .{ .name = "objc_msgSend" });
 const objc_msgSend_void_sel = @extern(MsgVoidSel, .{ .name = "objc_msgSend" });
 const objc_msgSend_void_size = @extern(MsgVoidSize, .{ .name = "objc_msgSend" });
@@ -142,11 +136,6 @@ pub fn msgIdId(receiver: Id, sel: [:0]const u8, a: Id, b: Id) Id {
     return objc_msgSend_id_id_id(receiver, selector(sel), a, b);
 }
 
-/// Sends an object and integer argument pair returning an object.
-pub fn msgIdIdInteger(receiver: Id, sel: [:0]const u8, a: Id, b: NSInteger) Id {
-    return objc_msgSend_id_id_integer(receiver, selector(sel), a, b);
-}
-
 /// Sends an object, selector, object message returning an object.
 pub fn msgIdSelId(receiver: Id, sel: [:0]const u8, a: Id, b: Sel, c: Id) Id {
     return objc_msgSend_id_sel_id(receiver, selector(sel), a, b, c);
@@ -180,11 +169,6 @@ pub fn msgUInteger(receiver: Id, sel: [:0]const u8, arg: NSUInteger) Id {
 /// Sends a no-argument Objective-C message returning a boolean.
 pub fn msgBool(receiver: Id, sel: [:0]const u8) bool {
     return objc_msgSend_bool(receiver, selector(sel));
-}
-
-/// Sends one object argument returning a boolean.
-pub fn msgBoolId(receiver: Id, sel: [:0]const u8, arg: Id) bool {
-    return objc_msgSend_bool_id(receiver, selector(sel), arg);
 }
 
 /// Sends a no-argument Objective-C message returning an `NSInteger`.
@@ -235,11 +219,6 @@ pub fn msgVoidIdBool(receiver: Id, sel: [:0]const u8, a: Id, b: bool) void {
 /// Sends two object arguments returning void.
 pub fn msgVoidIdId(receiver: Id, sel: [:0]const u8, a: Id, b: Id) void {
     objc_msgSend_void_id_id(receiver, selector(sel), a, b);
-}
-
-/// Sends an object and integer argument pair returning void.
-pub fn msgVoidIdInteger(receiver: Id, sel: [:0]const u8, a: Id, b: NSInteger) void {
-    objc_msgSend_void_id_integer(receiver, selector(sel), a, b);
 }
 
 /// Sends one `NSInteger` argument returning void.

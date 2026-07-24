@@ -27,13 +27,11 @@ pub fn run(init: std.process.Init) !void {
         .delete_note = controller_callbacks.deleteNoteAction,
         .toggle_sidebar = controller_callbacks.toggleSidebarAction,
         .number_of_rows = controller_callbacks.numberOfRowsInTableView,
-        .object_value = controller_callbacks.tableObjectValue,
         .view_for_column = controller_callbacks.tableObjectValueView,
         .set_object_value = controller_callbacks.tableSetObjectValue,
         .selection_did_change = controller_callbacks.tableSelectionDidChange,
         .text_did_change = controller_callbacks.textDidChange,
-        .toolbar_allowed_identifiers = controller_callbacks.toolbarAllowedItemIdentifiers,
-        .toolbar_default_identifiers = controller_callbacks.toolbarDefaultItemIdentifiers,
+        .toolbar_identifiers = controller_callbacks.toolbarItemIdentifiers,
         .toolbar_item = controller_callbacks.toolbarItemForIdentifier,
     });
     const delegate = delegate_class.create();

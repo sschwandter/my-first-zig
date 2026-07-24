@@ -28,15 +28,15 @@ pub fn sortByTitle(notes: []Note) void {
 
 test "sortByTitle sorts case-insensitively" {
     const allocator = std.testing.allocator;
-    var notes = std.ArrayList(Note).init(allocator);
+    var notes: std.ArrayList(Note) = .empty;
     defer {
         for (notes.items) |n| n.deinit(allocator);
-        notes.deinit();
+        notes.deinit(allocator);
     }
 
-    try notes.append(.{ .title = try allocator.dupeZ(u8, "Zebra"), .filename = try allocator.dupe(u8, "zebra.txt") });
-    try notes.append(.{ .title = try allocator.dupeZ(u8, "apple"), .filename = try allocator.dupe(u8, "apple.txt") });
-    try notes.append(.{ .title = try allocator.dupeZ(u8, "Banana"), .filename = try allocator.dupe(u8, "banana.txt") });
+    try notes.append(allocator, .{ .title = try allocator.dupeZ(u8, "Zebra"), .filename = try allocator.dupe(u8, "zebra.txt") });
+    try notes.append(allocator, .{ .title = try allocator.dupeZ(u8, "apple"), .filename = try allocator.dupe(u8, "apple.txt") });
+    try notes.append(allocator, .{ .title = try allocator.dupeZ(u8, "Banana"), .filename = try allocator.dupe(u8, "banana.txt") });
 
     sortByTitle(notes.items);
 

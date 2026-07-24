@@ -63,13 +63,7 @@ pub fn itemForIdentifier(delegate: rt.Id, item_identifier: rt.Id) rt.Id {
             .action = "deleteNote:",
         });
     }
-    return toolbarItem(item_identifier, delegate, .{
-        .label = "Note",
-        .palette_label = "Note",
-        .tool_tip = "Note action",
-        .symbol = "doc.text",
-        .action = "newNote:",
-    });
+    return rt.nil;
 }
 
 const ToolbarItemOptions = struct {
